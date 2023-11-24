@@ -10,7 +10,8 @@ const Homepage = () => {
         const {
           data: { user },
         } = await supabase.auth.getUser();
-        setUserEmail(user.email);
+        setUserEmail(user.user_metadata.full_name);
+        console.log(user);
       } catch (error) {
         console.error("Error fetching user data:", error.message);
       }

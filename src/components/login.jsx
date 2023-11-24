@@ -7,28 +7,38 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true); // Set loading to true when starting login
+      setLoading(true);
       const { user, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        console.error(error);
+        if (error.message === "Invalid login credentials") {
+          setErrorMessage("Invalid username or password.");
+        } else {
+          setErrorMessage("An error occurred. Please try again.");
+        }
+        setLoading(false);
       } else {
         console.log(user);
         navigate("/homepage");
       }
     } catch (error) {
       console.error("Error signing in:", error.message);
-    } finally {
-      setLoading(false); // Set loading back to false when login finishes (success or error)
+      setErrorMessage("An error occurred. Please try again.");
+      setLoading(false);
     }
+  };
+
+  const handleForgotPassword = () => {
+    //TO BE DONE
   };
 
   return (
@@ -39,6 +49,9 @@ const Login = () => {
             Log in to your account
           </h2>
         </div>
+        {errorMessage && (
+          <div className="text-red-500 text-center">{errorMessage}</div>
+        )}
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           <input
             type="email"
@@ -56,10 +69,10 @@ const Login = () => {
           />
           <button
             type="submit"
-            disabled={loading} // Disable button when loading is true
+            disabled={loading}
             className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
-            {loading ? ( // Show spinner if loading, else show "Log in"
+            {loading ? (
               <div className="flex items-center justify-center">
                 <FaSpinner className="animate-spin mr-2" />
               </div>
@@ -67,7 +80,27 @@ const Login = () => {
               "Log in"
             )}
           </button>
+          <p className="text-center text-sm mt-4">
+            <button
+              type="button"
+              className="text-blue-500"
+              onClick={handleForgotPassword} // Call handleForgotPassword on button click
+            >
+              Forgot password?
+            </button>
+            <span className="text-gray-500"> (Not available yet) </span>
+          </p>
         </form>
+        <p className="text-center text-sm mt-4">
+          Don't have an account?{" "}
+          <button
+            type="button"
+            className="text-blue-500"
+            onClick={() => navigate("/signup")}
+          >
+            Sign Up
+          </button>
+        </p>
       </div>
     </div>
   );
